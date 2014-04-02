@@ -37,6 +37,10 @@ class PlgContentYoutube extends JPlugin
 	 */
 	public function onContentPrepare($context, &$article, &$params, $page = 0)
 	{
+
+
+
+
 		// Don't run this plugin when the content is being indexed
 		if ($context == 'com_finder.indexer')
 		{
@@ -44,11 +48,16 @@ class PlgContentYoutube extends JPlugin
 		}
 
 
+
+
+
 		// Simple performance check to determine whether bot should process further
-		if (strpos($article->text, '{youtube') === false && strpos($article->text, '{youtube') === false)
+		if (strpos($article->text, '{youtube') === false)
 		{
 			return true;
 		}
+
+
 
 		// Expression to search for (positions)
 		$regex		= '/{youtube\s(.*?)}/i';
@@ -57,6 +66,7 @@ class PlgContentYoutube extends JPlugin
 		// Find all instances of plugin and put in $matches for loadposition
 		// $matches[0] is full pattern match, $matches[1] is the position
 		preg_match_all($regex, $article->text, $matches, PREG_SET_ORDER);
+
 
 
 
@@ -75,15 +85,23 @@ class PlgContentYoutube extends JPlugin
 
 				$identifier = trim($matcheslist[0]);
 				$style      = trim($matcheslist[1]);
-
+        if (!$style)  {
+          $style = $this->params->def('style', 'none');
+        }
 
 				$output = $this->_load($identifier, $style);
 
 				// We should replace only first occurrence in order to allow positions with the same name to regenerate their content:
+
 				$article->text = preg_replace("|$match[0]|", addcslashes($output, '\\$'), $article->text, 1);
-				$style = $this->params->def('style', 'none');
+
 			}
 		}
+
+    $article->core_body = $article->text;
+
+    return $article;
+
   }
 
 
